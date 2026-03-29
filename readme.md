@@ -18,6 +18,28 @@ English | [中文](README_zh-CN.md)
 
 ---
 
+## 🎮 RPG Dashboard
+
+Watch your agent evolve like an RPG character — with XP bars, skill unlocks, and achievements!
+
+```bash
+evolve dashboard
+```
+
+![RPG Dashboard](docs/dashboard.png)
+
+Your agent gets stronger with every task. Each completed task grants XP, insights unlock new skills, and achievements appear as your agent matures.
+
+```bash
+# Terminal report (no browser needed)
+evolve report
+
+# Browse insights
+evolve insights
+```
+
+---
+
 ## 🤔 Why evolve-kit?
 
 Every AI agent today has the same problem: **they start fresh every session.**

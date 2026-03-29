@@ -18,6 +18,28 @@
 
 ---
 
+## 🎮 RPG 仪表盘
+
+像玩游戏一样看着你的 Agent 进化 —— 经验条、技能解锁、成就系统！
+
+```bash
+evolve dashboard
+```
+
+![RPG 仪表盘](docs/dashboard.png)
+
+你的 Agent 随着每个任务变强。每完成一个任务获得经验值，洞察解锁新技能，成就随成熟度自动出现。
+
+```bash
+# 终端报告（无需浏览器）
+evolve report
+
+# 浏览洞察记录
+evolve insights
+```
+
+---
+
 ## 🤔 为什么需要 evolve-kit？
 
 当前所有 AI Agent 都有同一个问题：**每次会话从零开始。**
