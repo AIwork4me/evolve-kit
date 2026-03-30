@@ -10,9 +10,12 @@ from evolve_kit.validator import SelfValidator
 from evolve_kit.scorer import PerformanceScorer
 from evolve_kit.guard import EvolutionGuard
 from evolve_kit.maturity import MaturityScorer
+from evolve_kit.achievements import AchievementEngine
+from evolve_kit.skill_tree import SkillTree
 from evolve_kit.types import (
     Insight, MemoryEntry, ValidationResult,
     ScoreResult, GuardResult, MaturityReport,
+    XP_TABLE,
 )
 
 
@@ -27,18 +30,32 @@ class EvolutionEngine:
     """
 
     def __init__(self, workspace_dir: str | Path = "."):
-        base = Path(workspace_dir) / "evolve-data"
-        base.mkdir(parents=True, exist_ok=True)
+        self._base = Path(workspace_dir) / "evolve-data"
+        self._base.mkdir(parents=True, exist_ok=True)
 
-        self._insight_engine = InsightEngine(base / "insights.jsonl")
+        self._insight_engine = InsightEngine(self._base / "insights.jsonl")
         self._memory_manager = MemoryManager(
-            base / "memory.json",
-            base / "deletions.jsonl",
+            self._base / "memory.json",
+            self._base / "deletions.jsonl",
         )
-        self._validator = SelfValidator(base / "validations.jsonl")
-        self._scorer = PerformanceScorer(base / "scores.jsonl")
-        self._guard = EvolutionGuard(base / "guard-log.jsonl")
+        self._validator = SelfValidator(self._base / "validations.jsonl")
+        self._scorer = PerformanceScorer(self._base / "scores.jsonl")
+        self._guard = EvolutionGuard(self._base / "guard-log.jsonl")
         self._maturity = MaturityScorer()
+
+    @property
+    def achievements(self) -> AchievementEngine:
+        """Lazily-created achievement engine."""
+        if not hasattr(self, "_achievement_engine"):
+            self._achievement_engine = AchievementEngine(self._base / "achievements")
+        return self._achievement_engine
+
+    @property
+    def skill_tree(self) -> SkillTree:
+        """Lazily-created skill tree engine."""
+        if not hasattr(self, "_skill_tree"):
+            self._skill_tree = SkillTree(self._base / "skill-tree")
+        return self._skill_tree
 
     @property
     def memory(self) -> MemoryManager:
@@ -104,6 +121,58 @@ class EvolutionEngine:
         result = self._guard.verify_evolution(changes, checks, custom_checks)
         self._guard.log(result)
         return result
+
+    # ── XP / Level system ────────────────────────────────────────────
+
+    @property
+    def xp_total(self) -> int:
+        """Total XP earned: insights×20 + scores×30 + memory×15."""
+        return (
+            self._insight_engine.count() * 20
+            + self._scorer.count() * 30
+            + self._memory_manager.count() * 15
+        )
+
+    @property
+    def level(self) -> int:
+        """Current level derived from XP total."""
+        xp = self.xp_total
+        current_level = 1
+        for lvl, threshold in XP_TABLE:
+            if xp >= threshold:
+                current_level = lvl
+            else:
+                break
+        return current_level
+
+    @property
+    def xp_to_next(self) -> int:
+        """XP needed to reach the next level (0 if already max)."""
+        xp = self.xp_total
+        for lvl, threshold in XP_TABLE:
+            if xp < threshold:
+                return threshold - xp
+        return 0
+
+    @property
+    def xp_progress(self) -> float:
+        """Progress within the current level as a 0.0–1.0 fraction."""
+        xp = self.xp_total
+        current_level = self.level
+        # Find current level threshold
+        current_threshold = 0
+        next_threshold = 0
+        for lvl, threshold in XP_TABLE:
+            if lvl == current_level:
+                current_threshold = threshold
+            if lvl == current_level + 1:
+                next_threshold = threshold
+        if next_threshold == 0:
+            return 1.0  # max level
+        span = next_threshold - current_threshold
+        if span == 0:
+            return 1.0
+        return (xp - current_threshold) / span
 
     def report(
         self,

@@ -9,6 +9,13 @@ from enum import Enum
 from typing import Any
 
 
+XP_TABLE: list[tuple[int, int]] = [
+    (1, 0), (2, 50), (3, 150), (4, 300), (5, 500),
+    (6, 750), (7, 1000), (8, 1500), (9, 2000), (10, 3000),
+]
+"""Level thresholds: (level, xp_required)."""
+
+
 class MemoryOp(Enum):
     ADD = "ADD"
     UPDATE = "UPDATE"

@@ -20,23 +20,31 @@ English | [中文](README_zh-CN.md)
 
 ## 🎮 RPG Dashboard
 
-Watch your agent evolve like an RPG character — with XP bars, skill unlocks, and achievements!
+Watch your agent evolve like an RPG character!
 
 ```bash
+# Open the pixel-art dashboard in your browser
 evolve dashboard
-```
 
-![RPG Dashboard](docs/dashboard.png)
-
-Your agent gets stronger with every task. Each completed task grants XP, insights unlock new skills, and achievements appear as your agent matures.
-
-```bash
-# Terminal report (no browser needed)
+# Terminal report with XP, skills, and achievements
 evolve report
+
+# JSON output for integrations
+evolve report --json
 
 # Browse insights
 evolve insights
 ```
+
+![RPG Dashboard](docs/dashboard-v2.png)
+
+### Features
+
+- **XP & Level System** — earn XP from insights (20), tasks (30), and memory (15). Level up from 1 to 10.
+- **Skill Tree** — 8 skills that unlock as your agent's dimensions improve (洞察之眼, 永恒记忆, 自省大师, ...)
+- **Achievements** — 8 achievements from "First Steps" to "Evolution Master"
+- **Quality Trend** — visual bar chart of recent task performance
+- **JSON API** — `evolve report --json` for integration with other tools
 
 ---
 
